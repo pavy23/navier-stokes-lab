@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080e16">
+  <meta name="description" content="물과 공기가 움직이는 규칙, 나비에–스토크스 방정식. 직접 젓는 유체 실험, 클릭으로 읽는 수식, OpenAI의 2026년 밀레니엄 문제 발표를 쉽게 배워보세요.">
+  <meta property="og:title" content="FLOW LAB · 나비에–스토크스 실험실">
+  <meta property="og:description" content="수학을 몰라도 괜찮아요. 흐름을 만들고, 방정식을 읽고, 밀레니엄 문제를 이해해 보세요.">
+  <title>FLOW LAB · 나비에–스토크스 실험실</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./app.mjs"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">본문으로 건너뛰기</a>
+  <header class="site-header">
+    <a class="brand" href="#main" aria-label="플로우 랩 처음으로"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M3 11c8-12 22 12 30 0M3 18c8-12 22 12 30 0M3 25c8-12 22 12 30 0"/></svg><span>FLOW<span class="brand-light">LAB</span></span></a>
+    <nav aria-label="주요 메뉴"><a href="#lab">흐름 실험실</a><a href="#equation">방정식 읽기</a><a href="#millennium">밀레니엄 문제 <span class="nav-new">NEW</span></a></nav>
+    <span class="header-note">눈으로 배우는 물리</span>
+  </header>
+  <main id="main">
+    <section class="intro container" aria-labelledby="intro-title">
+      <div><p class="eyebrow"><span class="short-line"></span> NAVIER–STOKES, MADE VISIBLE</p><h1 id="intro-title">흐름을 만지면,<br class="mobile-break"> 방정식이 보입니다.</h1><p class="intro-copy">물, 공기, 피처럼 흐르는 것을 <strong>유체</strong>라고 해요.<br>나비에–스토크스 방정식은 <strong>“유체가 다음 순간 어떻게 움직일까?”</strong>를 계산하는 규칙입니다.</p></div>
+      <a class="news-link" href="#openai"><span class="news-date">RESEARCH NOTE <span>2026.09.08</span></span><strong>OpenAI는 어떤 문제를 풀었을까?</strong><span>발표의 의미를 그림으로 읽어보기 <span aria-hidden="true">↗</span></span></a>
+    </section>
+
+    <section class="container lab-section" id="lab" aria-labelledby="lab-title">
+      <div class="section-bar"><div class="section-label"><span class="chapter">01</span><h2 id="lab-title">먼저, 한 번 저어보세요.</h2></div><span class="section-meta">수학 지식 없이 시작하기</span></div>
+      <div class="lab-layout">
+        <div class="simulation-panel">
+          <div class="sim-toolbar"><div class="segmented" role="group" aria-label="시각화 방식"><button type="button" data-view="dye" aria-pressed="true">잉크</button><button type="button" data-view="speed" aria-pressed="false">속도</button><button type="button" data-view="curl" aria-pressed="false">회전</button></div><label class="check-label"><input id="vectors" type="checkbox">방향 표시</label></div>
+          <div class="canvas-wrap" id="canvas-wrap">
+            <canvas id="fluid-canvas" tabindex="0" aria-label="유체 실험. 화면을 누른 채 움직여 흐름을 만드세요. 키보드로는 방향키로 위치를 옮기고 Enter로 저을 수 있습니다." aria-describedby="canvas-help">이 브라우저는 캔버스를 지원하지 않습니다. 아래의 방정식 설명과 학습 내용을 이용할 수 있어요.</canvas>
+            <div class="canvas-topline"><span>2D FLUID FIELD</span><span id="sim-status">실험 중</span></div>
+            <div class="canvas-hint" id="canvas-hint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V5a2 2 0 0 1 4 0v5l2-1 5 4-2 8h-7l-6-8a2 2 0 0 1 3-2l1 1"/></svg><span>화면을 누른 채 움직여보세요</span></div>
+            <div class="canvas-scale" id="canvas-scale"><span id="legend-left">청록 잉크</span><span class="color-scale" id="color-scale"></span><span id="legend-right">주황 잉크</span></div>
+          </div>
+          <div class="sim-bottom"><div class="sim-actions"><button class="icon-button" id="pause" type="button" aria-label="실험 일시정지"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 4v12M13 4v12"/></svg><span>일시정지</span></button><button class="icon-button" id="reset" type="button"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 7a7 7 0 1 1 0 7M4 3v5h5"/></svg><span>다시 시작</span></button></div><span class="sim-clock" id="clock">모형 시간 0.0</span></div>
+          <p class="canvas-caption" id="canvas-help"><span id="view-description">잉크는 흐름을 따라가는 표시예요. 색이 물의 속도를 뜻하지는 않아요.</span> <span>화면 아래 버튼으로도 저을 수 있어요.</span></p>
+        </div>
+        <aside class="controls" aria-label="실험 설정">
+          <div class="control-heading"><span class="small-label">YOUR EXPERIMENT</span><span class="small-pill">직접 조작</span></div>
+          <label class="control-label" for="scene">어떤 흐름을 만들까요?</label>
+          <select id="scene"><option value="swirl">소용돌이 만들기</option><option value="jets">서로 만나는 물줄기</option><option value="ink">가만한 물에 잉크 넣기</option></select>
+          <div class="slider-block"><div class="control-row"><label for="viscosity">점성 <span class="muted">· 이웃끼리 끌어당기는 정도</span></label><output id="viscosity-value" for="viscosity">낮음</output></div><input id="viscosity" type="range" min="0" max="100" value="24"><div class="range-captions"><span>잘 흐르는 쪽</span><span>끈끈한 쪽</span></div></div>
+          <div class="preset-row" role="group" aria-label="점성 예시"><button type="button" data-visc="24" aria-pressed="true">물처럼</button><button type="button" data-visc="62" aria-pressed="false">기름처럼</button><button type="button" data-visc="94" aria-pressed="false">꿀처럼</button></div>
+          <p class="micro-copy">느낌을 비교하는 설정이며, 실제 물성값은 아니에요.</p>
+          <div class="slider-block force-block"><div class="control-row"><label for="force">미는 힘</label><output id="force-value" for="force">1.0×</output></div><input id="force" type="range" min="20" max="220" value="100"><div class="range-captions"><span>살짝</span><span>힘껏</span></div></div>
+          <div class="control-row continuous"><label class="check-label"><input id="continuous" type="checkbox" checked>계속 힘 주기</label><button class="text-button" id="stir" type="button">한 번 젓기 <span aria-hidden="true">↗</span></button></div>
+          <div class="observation" aria-live="polite"><span class="observation-label">이렇게 해보세요</span><h3 id="experiment-title">한 번 젓고, 지켜보세요.</h3><p id="experiment-copy">‘계속 힘 주기’를 끄고 점성을 바꿔보세요. 점성이 높으면 이웃의 속도 차이를 더 빨리 고르게 만들어요.</p></div>
+        </aside>
+      </div>
+      <div class="lab-footnote"><span class="info-mark" aria-hidden="true">i</span><p>이 실험은 <strong>2차원 비압축성 유동의 근사 계산</strong>입니다. 잉크의 옅어짐에는 화면용 감쇠도 포함돼요. 실제 물질의 정밀 해석이나 3차원 특이점 재현은 아닙니다. <a href="#model-notes">계산 방법 보기</a></p></div>
+    </section>
+
+    <section class="container equation-section" id="equation" aria-labelledby="equation-title">
+      <div class="section-bar"><div class="section-label"><span class="chapter">02</span><h2 id="equation-title">이 움직임을 한 문장으로 쓰면</h2></div><span class="section-meta">수식의 각 부분을 눌러보세요</span></div>
+      <div class="equation-intro"><p>유체도 힘을 받으면 움직임이 달라져요.<br>익숙한 <strong>‘힘 = 질량 × 가속도’</strong>를 흐르는 물에 적용한 것이죠.</p><span class="equation-assumption">밀도가 일정한 비압축성 유체</span></div>
+      <div class="equation-card">
+        <div class="equation-scroll" role="group" aria-label="나비에 스토크스 방정식의 항 선택">
+          <button class="equation-term active" type="button" data-term="change" aria-pressed="true"><span class="math fraction"><span>∂<b>u</b></span><span>∂t</span></span><span class="term-label">그 자리의 변화</span></button><span class="math operator">+</span>
+          <button class="equation-term" type="button" data-term="advection" aria-pressed="false"><span class="math">(<b>u</b> · ∇)<b>u</b></span><span class="term-label">이동하며 겪는 변화</span></button><span class="math operator">=</span>
+          <button class="equation-term" type="button" data-term="pressure" aria-pressed="false"><span class="math">−<span class="fraction inline"><span>1</span><span>ρ</span></span>∇p</span><span class="term-label">압력의 밀기</span></button><span class="math operator">+</span>
+          <button class="equation-term" type="button" data-term="viscosity" aria-pressed="false"><span class="math">ν∇²<b>u</b></span><span class="term-label">점성의 고르게 하기</span></button><span class="math operator">+</span>
+          <button class="equation-term" type="button" data-term="force" aria-pressed="false"><span class="math"><b>f</b></span><span class="term-label">밖에서 가하는 힘</span></button>
+        </div>
+        <div class="equation-detail" aria-live="polite"><div class="term-visual" id="term-visual" aria-hidden="true"></div><div><span class="small-label" id="term-kicker">01 / 그 자리의 변화</span><h3 id="term-title">다리 위에서, 아래 물살을 본다고 생각해요.</h3><p id="term-copy">한 지점을 계속 볼 때 그곳의 물살이 시간이 지나며 빨라지거나 방향을 바꾸는 정도예요. ∂는 ‘조금 바뀐 양’, u는 ‘속도와 방향’을 뜻해요.</p><p class="term-try" id="term-try">실험에서는 → 같은 곳을 지나는 잉크의 움직임이 달라지는지 살펴보세요.</p></div></div>
+        <div class="incompressible"><span class="math">∇ · <b>u</b> = 0</span><p><strong>함께 지켜야 하는 약속: 물은 갑자기 압축되거나 생겨나지 않아요.</strong><br>아주 작은 공간에 들어온 양만큼 나가야 해요. 한 방향으로 좁아지면 다른 방향으로 늘어날 수 있죠.</p></div>
+      </div>
+      <details class="detail-box"><summary>기호를 조금 더 알고 싶어요 <span aria-hidden="true">+</span></summary><div class="symbol-grid"><p><b>u</b><span>속도 벡터. 얼마나 빠르게, 어느 방향으로 흐르는지.</span></p><p><b>p / ρ</b><span>압력 / 밀도. 밀도는 같은 부피에 담긴 질량.</span></p><p><b>ν</b><span>동점성계수. 운동량이 주변에 퍼지는 정도.</span></p><p><b>f</b><span>단위 질량당 외력. 중력, 외부 장치의 밀기 등.</span></p><p><b>∇ / ∇²</b><span>공간에 따른 변화 / 주변과 비교한 굽음. ∇p는 압력이 커지는 방향을 알려줘요.</span></p><p><b>두 항의 합</b><span>왼쪽 두 항을 합하면 유체 조각을 따라갈 때의 가속도예요.</span></p></div></details>
+      <div class="takeaway"><span class="takeaway-index">기억할 한 가지</span><p>유체의 움직임은 <strong>압력·점성·외력</strong>이 함께 바꿉니다.<br>그리고 움직이는 유체가 <strong>다음 흐름에 다시 영향</strong>을 주기 때문에 복잡해져요.</p></div>
+    </section>
+
+    <section class="millennium-section" id="millennium" aria-labelledby="millennium-title">
+      <div class="container">
+        <div class="section-bar"><div class="section-label"><span class="chapter orange">03</span><h2 id="millennium-title">그런데, 무엇이 풀리지 않았을까요?</h2></div><span class="section-meta">밀레니엄 문제</span></div>
+        <div class="big-question"><p class="eyebrow orange-text">A QUESTION ABOUT THE RULES THEMSELVES</p><h3>“부드럽게 시작한 3차원 흐름은<br>언제까지나 <em>멀쩡할까?</em>”</h3><p>어떤 물살 하나를 계산하는 것과, <strong>방정식의 답이 계속 매끄럽게 존재하는지 증명하는 것</strong>은 달라요. 밀레니엄 문제는 바로 이 두 번째 질문입니다.</p></div>
+        <div class="concept-grid"><article class="concept-card"><span class="small-label">CALCULATION</span><h4>이 물살의 다음 모습은?</h4><p>지금의 속도, 압력, 힘을 넣어 다음 순간을 계산해요. 위 실험실과 선박·항공기 유동 해석이 하는 일이에요.</p><span class="concept-bottom">특정 조건에서의 수치 계산</span></article><article class="concept-card highlighted"><span class="small-label">MATHEMATICAL PROOF</span><h4>답이 끝까지 잘 존재할까?</h4><p>조건에 맞는 흐름이 계속 매끄러울지, 아니면 유한한 시간에 매끄러움이 깨지는 예가 있을지 묻습니다.</p><span class="concept-bottom">가능성과 한계를 밝히는 증명</span></article></div>
+
+        <article class="research-card" id="openai">
+          <div class="research-heading"><span class="research-badge">OPENAI RESEARCH</span><time datetime="2026-09-08">2026년 9월 8일 발표</time></div>
+          <h3>OpenAI가 발표한 답:<br><span>“특이점이 생기는 흐름을 구성했다.”</span></h3>
+          <p class="research-lead">OpenAI는 정지 상태에서 출발해 <strong>매끄러운 외력</strong>을 받는 3차원 비압축성 유체가, 유한한 시간에 속도가 한없이 커지는 경우를 증명했다고 발표했어요. 전체 운동에너지는 유한하게 유지됩니다. <a href="https://openai.com/index/navier-stokes-solution/" target="_blank" rel="noopener noreferrer">발표 원문 ↗</a></p>
+          <div class="research-scope"><span>발표의 정확한 범위</span><p>외력이 있는 문제의 붕괴 경우 <strong>C·D</strong>. ‘모든 유체가 폭발한다’거나 ‘외력 없는 모든 경우도 해결됐다’는 뜻은 아니에요.</p></div>
+          <div class="singularity-layout">
+            <div class="singularity-visual"><div class="visual-heading"><span>작아지는 중심 영역</span><span class="small-pill orange-pill">개념 그림</span></div><canvas id="vortex-canvas" aria-label="시간이 특이점에 가까워질수록 강한 흐름의 중심 영역이 더 가늘게 집중되는 개념 그림"></canvas><div class="vortex-axis"><span>초기</span><span>특이점에 가까운 때</span></div><label class="sr-only" for="vortex-time">특이점에 다가가는 정도</label><input id="vortex-time" type="range" min="0" max="95" value="25"><div class="vortex-reading" aria-live="polite" id="vortex-reading">시간을 움직이며 중심 영역의 변화를 살펴보세요.</div></div>
+            <div class="singularity-copy"><span class="small-label orange-text">슬라이더를 오른쪽으로</span><h4>더 좁은 곳에서,<br>더 강해지는 흐름.</h4><p>강한 흐름이 집중되는 중심 영역은 전체적으로 작아져요. 가로 폭이 세로 길이보다 더 빨리 줄어 상대적으로 가늘어집니다.</p><p>그 작은 영역의 속도가 한없이 커져도, 영역의 부피가 충분히 작아지면 <strong>전체 에너지는 유한</strong>할 수 있어요. 이 설명은 논문의 그림과 스케일 관계를 단순화한 것입니다.</p><a class="source-inline" href="https://cdn.openai.com/pdf/32d9f210-8b73-45e0-91bc-82a30aef8a9a/navier-stokes.pdf" target="_blank" rel="noopener noreferrer">논문 §2·그림 1 확인하기 ↗</a><p class="concept-note">실제 증명 해를 계산한 애니메이션이 아닙니다. 크기 변화는 이해를 위해 과장했고, 무한대에 도달하는 모습은 그리지 않아요.</p></div>
+          </div>
+          <div class="ai-process"><div><strong>약 10,000</strong><span>해법을 찾은 그룹의 동시 에이전트</span></div><div><strong>88<span>시간</span></strong><span>첫 에이전트 가동부터 해법 도출</span></div><div><strong>+17<span>시간</span></strong><span>GPT‑6 Astra의 Lean 형식화·검증</span></div></div>
+          <p class="ai-caption">OpenAI 설명 기준. 해법 탐색에는 GPT‑6 Astra보다 강력한 미공개 내부 모델을 사용했고, 나비에–스토크스 작업에 약 1,300억 출력 토큰이 쓰였습니다. <a href="https://openai.com/index/navier-stokes-solution/" target="_blank" rel="noopener noreferrer">탐색 과정 ↗</a></p>
+          <div class="status-note"><span class="info-mark" aria-hidden="true">i</span><p><strong>발표와 공식 인정 상태를 구분해요.</strong> 2026년 9월 9일 확인 시 Clay의 문제 페이지는 ‘Unsolved’로 표시되어 있습니다. OpenAI는 논문과 Lean 형식 증명을 공개했고, 상금을 청구할 계획은 없다고 밝혔어요. 형식 검증과 문제의 조건에 맞는지에 대한 학계의 검토·공식 인정은 구분해야 합니다. <a href="https://www.claymath.org/millennium/navier-stokes-equation/" target="_blank" rel="noopener noreferrer">Clay 현황 ↗</a> <a href="https://github.com/openai/NavierStokesAndEuler" target="_blank" rel="noopener noreferrer">Lean 자료 ↗</a></p></div>
+        </article>
+        <div class="misconception-grid"><div><span class="mini-number">01</span><h4>난류 = 특이점?</h4><p>아니에요. 난류는 복잡하고 불규칙한 흐름이에요. 소용돌이가 많다는 것만으로 속도가 무한대로 커지는 특이점이 되지는 않아요.</p></div><div><span class="mini-number">02</span><h4>현실의 물이 무한히 빨라질까?</h4><p>수학적 연속체 모델에서의 결과예요. 현실의 물이 무한한 속도를 낸다는 관측 결과가 아닙니다.</p></div><div><span class="mini-number">03</span><h4>그럼 기존 유동 해석은 쓸모없을까?</h4><p>특정 극한에서의 한계가, 검증된 조건에서 사용하는 계산을 모두 무효로 만들지는 않아요. 계산의 가정과 적용 범위가 중요해집니다.</p></div></div>
+      </div>
+    </section>
+
+    <section class="container check-section" aria-labelledby="check-title"><div><span class="eyebrow">ONE LAST THOUGHT</span><h2 id="check-title">이제, 설명할 수 있겠어요?</h2><p>밀레니엄 문제는 무엇을 묻는 문제였을까요?</p></div><div class="quiz" id="quiz"><button type="button" data-answer="simulation">내일 컵 속 물이 어떻게 움직일까?</button><button type="button" data-answer="proof">부드러운 3차원 흐름의 답이 계속 매끄러울까?</button><p id="quiz-feedback" aria-live="polite">답을 고르면 이유를 알려드릴게요.</p></div></section>
+
+    <section class="container sources-section" aria-label="계산 방법과 출처">
+      <details class="detail-box" id="model-notes"><summary>이 실험은 어떻게 계산하나요? <span aria-hidden="true">+</span></summary><div class="details-content"><p>격자 위의 2차원 속도장을 사용합니다. 외력 적용 → 점성 확산 → 압력 투영 → 속도의 이류 → 다시 투영하는 방식으로 비압축성 나비에–스토크스 방정식을 근사합니다. 이류는 semi-Lagrangian 방식이고, 투영은 압력 포아송 방정식을 반복해서 푸는 방식입니다. 외곽은 닫힌 상자 경계로, 벽을 통과하는 속도를 반사시킵니다.</p><p>두 색의 잉크는 속도를 따라 이동하는 수동 스칼라입니다. 시각화를 유지하기 위한 주입·감쇠가 있고, 숫자는 무차원 모형값입니다. ‘물처럼·꿀처럼’은 정성적 비교용이며 실제 유체의 물성에 맞춰 보정한 값이 아닙니다. 격자 크기와 수치 확산, 반복 계산 오차 때문에 실제 유동과 차이가 있습니다.</p><p>고전적인 Stable Fluids 접근을 바탕으로 한 교육용 구현입니다. 위의 2차원 실험으로 3차원의 유한 시간 붕괴를 확인하거나 증명할 수는 없습니다.</p></div></details>
+      <div class="source-list"><span class="small-label">더 읽어보기 · 2026.09.09 확인</span><a href="https://openai.com/index/navier-stokes-solution/" target="_blank" rel="noopener noreferrer">OpenAI 공식 발표 <span>↗</span></a><a href="https://cdn.openai.com/pdf/32d9f210-8b73-45e0-91bc-82a30aef8a9a/navier-stokes.pdf" target="_blank" rel="noopener noreferrer">Finite Time Blowup for Navier–Stokes · 논문 <span>↗</span></a><a href="https://www.claymath.org/wp-content/uploads/2022/06/navierstokes.pdf" target="_blank" rel="noopener noreferrer">Clay · 밀레니엄 문제의 공식 정의 <span>↗</span></a><a href="https://www.claymath.org/millennium/navier-stokes-equation/" target="_blank" rel="noopener noreferrer">Clay · 문제 현황 <span>↗</span></a><a href="https://github.com/openai/NavierStokesAndEuler" target="_blank" rel="noopener noreferrer">Lean 형식 증명 자료 <span>↗</span></a></div>
+    </section>
+  </main>
+  <footer class="container site-footer"><a class="brand" href="#main">FLOW<span class="brand-light">LAB</span></a><p>복잡한 방정식도, 시작은 작은 호기심에서.</p><span>NAVIER–STOKES EXPLORER</span></footer>
+  <noscript><div class="noscript">실험을 조작하려면 JavaScript를 켜주세요. 설명과 출처는 그대로 읽을 수 있어요.</div></noscript>
+</body>
+</html>
