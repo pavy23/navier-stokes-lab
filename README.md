@@ -64,5 +64,16 @@ python -m http.server 8000 --directory dist
 | `dist/fluid.js` | 2D 유체 수치 계산 |
 | `dist/app.js` | Canvas 렌더링·조작·방정식·퀴즈 |
 | `dist/favicon.svg` | 아이콘 |
+| `tests/physics.test.cjs` | 유체 수치모형 검증 |
 
 수치 계산은 이해를 위한 직접 구현입니다. 외부 추적기·계정 수집·서버 API 호출은 포함하지 않습니다.
+
+## 검증
+
+```bash
+node --test tests/physics.test.cjs
+```
+
+정지 유체의 보존, 압력 투영 후 발산 감소, 점성 증가에 따른 에너지 감소, 세 실험의 지속 외력 아래 유한값·비음수 잉크를 검증합니다. 4개 검증을 통과했습니다. JavaScript 문법, 내부 링크, UI 요소 연결, 로컬 자산 경로도 확인했습니다.
+
+모바일에서는 실험 화면 아래로 제어판을 배치하고, 터치·키보드 입력과 모션 감소 설정을 지원합니다. 이 작업 환경에서는 실제 iOS/Android 기기와 PC 브라우저를 통한 화면 검증은 수행하지 않았습니다.

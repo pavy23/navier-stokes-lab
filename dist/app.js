@@ -6,7 +6,9 @@ const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
 const canvas = $('#fluid');
 const context = canvas.getContext('2d', {alpha:false});
 const coarse = window.matchMedia('(pointer: coarse)').matches;
-const sim = new Fluid(coarse ? 102 : 132, coarse ? 68 : 82);
+const initialBounds=canvas.getBoundingClientRect();
+const gridHeight=coarse?68:82;
+const sim=new Fluid(Math.max(48,Math.min(176,Math.round(gridHeight*initialBounds.width/Math.max(1,initialBounds.height)))),gridHeight);
 let preset='stream',view='dye',paused=reduced.matches,visible=true,force=.5,vectors=false,emit=true;
 let pointer=null,cursor={x:.5,y:.5},keyFocus=false,drawWidth=0,drawHeight=0;
 const buffer=document.createElement('canvas');buffer.width=sim.nx;buffer.height=sim.ny;
@@ -19,7 +21,7 @@ const observations={
 const notes={
  stream:'흐름을 손으로 저은 뒤, 점성을 높여보세요. 작은 구불거림이 더 빨리 잦아드나요?',
  collide:'미는 힘을 높여보세요. 같은 점성에서 만나는 두 흐름이 어떻게 달라지나요?',
- vortex:'‘계속 잉크 넣기’를 끄고 관찰하세요. 점성을 바꿀 때마다 ‘처음부터’를 눌러 비교해보세요.'
+ vortex:'‘계속 흐름·잉크 넣기’를 끄고 관찰하세요. 점성을 바꿀 때마다 ‘처음부터’를 눌러 비교해보세요.'
 };
 function source(dt){
  const t=sim.time,f=force*dt*9;
