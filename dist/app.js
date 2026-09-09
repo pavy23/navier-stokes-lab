@@ -127,40 +127,12 @@ const termData={
  viscosity:{en:'VISCOUS DIFFUSION',title:'옆의 물과, 움직임을 맞춰요.',desc:'빠른 물 옆에 느린 물이 있으면 서로 영향을 줘요. 점성은 이런 속도 차이를 줄이는 쪽으로 작용합니다. 위 실험에서 점성을 키우면 작은 흐름의 요철이 더 쉽게 잦아들어요.',take:'점성은 모든 물을 무조건 멈추는 마찰이 아니라, 이웃 사이의 속도 차이를 고르게 하는 효과예요.'},
  force:{en:'EXTERNAL FORCE',title:'바깥에서 힘을 주면, 흐름이 바뀌어요.',desc:'중력이 물을 아래로 당기거나, 펌프가 흐름을 만들 수 있어요. 위 실험에서는 손가락으로 미는 동작을 국소적인 힘으로 흉내 냈어요.',take:'이 식의 f는 단위 질량당 힘. 실제 손·벽과 접촉하는 현상은 더 복잡한 경계 조건으로 다룹니다.'}
 };
-let selectedTerm='time',termVisible=false,termClock=0;
+let selectedTerm='time';
 $$('[data-term]').forEach(button=>button.addEventListener('click',()=>{
  selectedTerm=button.dataset.term;const d=termData[selectedTerm];$$('[data-term]').forEach(b=>{b.classList.toggle('selected',b===button);b.setAttribute('aria-pressed',String(b===button));});
- $('#term-en').textContent=d.en;$('#term-title').textContent=d.title;$('#term-desc').textContent=d.desc;$('#term-takeaway').textContent=d.take;$('#term-canvas').setAttribute('aria-label',d.title+' '+d.desc);drawTerm(termClock);
+ $('#term-en').textContent=d.en;$('#term-title').textContent=d.title;$('#term-desc').textContent=d.desc;$('#term-takeaway').textContent=d.take;
+ document.dispatchEvent(new CustomEvent('ns:term',{detail:selectedTerm}));
 }));
-const tc=$('#term-canvas'),tx=tc.getContext('2d');
-function drawTerm(t){
- if(!tx)return;const w=500,h=240;tx.clearRect(0,0,w,h);tx.fillStyle='#0c1a24';tx.fillRect(0,0,w,h);
- tx.font='14px Arial, sans-serif';tx.lineWidth=1.5;
- if(selectedTerm==='time'){
-  tx.fillStyle='#a0b4bf';tx.fillText('같은 자리의 물을 관찰해요',27,32);
-  for(let y=75;y<190;y+=42)for(let x=45;x<470;x+=50)arrow(tx,x,y,1,Math.sin(t*.7+x*.007)*.2,'#77efd2',13+10*Math.sin(t*1.3));
-  tx.strokeStyle='#ff927f';tx.strokeRect(228,99,44,40);tx.fillStyle='#ffb8a8';tx.fillText('관찰하는 자리',210,200);
- }else if(selectedTerm==='advection'){
-  tx.fillStyle='#a0b4bf';tx.fillText('느린 곳',27,34);tx.fillText('빠른 곳',400,34);
-  for(let y=78;y<195;y+=38)for(let x=45;x<470;x+=48)arrow(tx,x,y,1,0,'#77efd26a',7+x*.042);
-  const x=30+((Math.exp((t%6)/6)-1)/(Math.E-1))*435;
-  tx.fillStyle='#ff927f';tx.beginPath();tx.arc(x,118,7,0,Math.PI*2);tx.fill();tx.fillStyle='#ffb8a8';tx.fillText('따라가는 물 조각',190,205);
- }else if(selectedTerm==='pressure'){
-  const gradient=tx.createLinearGradient(35,0,465,0);gradient.addColorStop(0,'#854749');gradient.addColorStop(1,'#123444');tx.fillStyle=gradient;tx.fillRect(30,55,440,115);
-  tx.fillStyle='#ffb7a8';tx.fillText('압력 높음',33,35);tx.fillStyle='#8cead7';tx.fillText('압력 낮음',391,35);
-  for(let x=70;x<445;x+=63)arrow(tx,x,110,1,0,'#ffffff',25);
-  tx.fillStyle='#c4d8df';tx.fillText('압력에 의한 힘의 방향',172,203);
- }else if(selectedTerm==='viscosity'){
-  tx.fillStyle='#a0b4bf';tx.fillText('서로 다른 빠르기가 점점 비슷해져요',27,32);
-  const relax=(Math.sin(t*.7)+1)*.5;
-  for(let y=75;y<=185;y+=26){const before=y===127?1:.22,v=before*(1-relax)+.45*relax;for(let x=55;x<460;x+=55)arrow(tx,x,y,v,0,y===127?'#ff927f':'#77efd2',40);}
- }else{
-  tx.fillStyle='#a0b4bf';tx.fillText('밖에서 아래로 미는 힘',27,32);
-  for(let x=65;x<460;x+=60){arrow(tx,x,80,0,1,'#ff927f',24);for(let y=135;y<195;y+=34)arrow(tx,x,y,.9,.3+.2*Math.sin(t),'#77efd2',23);}
- }
-}
-if('IntersectionObserver'in window)new IntersectionObserver(e=>{termVisible=e[0].isIntersecting;}).observe(tc);else termVisible=true;
-drawTerm(0);let termLast=0;function termFrame(now){requestAnimationFrame(termFrame);if(!visible||!termVisible||reduced.matches||now-termLast<50)return;termLast=now;termClock=now/1000;drawTerm(termClock);}requestAnimationFrame(termFrame);
 
 const chartSlider=$('#proof-time');
 if(chartSlider){
